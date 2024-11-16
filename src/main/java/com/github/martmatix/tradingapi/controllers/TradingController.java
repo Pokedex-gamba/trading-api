@@ -1,6 +1,7 @@
 package com.github.martmatix.tradingapi.controllers;
 
 import com.github.martmatix.tradingapi.constants.ErrorCodes;
+import com.github.martmatix.tradingapi.entities.TradeEntity;
 import com.github.martmatix.tradingapi.services.KeyLoaderService;
 import com.github.martmatix.tradingapi.services.TradingService;
 import io.jsonwebtoken.Claims;
@@ -14,6 +15,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.security.PublicKey;
+import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
@@ -43,11 +46,31 @@ public class TradingController {
 
             String responseMessage = tradingService.sendRequestToInventoryManager(inventoryId, newUserId, authHeader).bodyToMono(String.class).block();
 
+            TradeEntity tradeEntity = new TradeEntity();
+            tradeEntity.setDate(new Date());
+            tradeEntity.setUserId(userId);
+            tradeEntity.setNewUserId(newUserId);
+            tradeEntity.setInventoryId(inventoryId);
+            tradingService.saveTrade(tradeEntity);
 
             return ResponseEntity.ok(responseMessage);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"error\": \"Internal Server Error: " + e.getMessage() + "\"}");
         }
+    }
+
+    @GetMapping(path = "/pokemon/trading/tradeHistory")
+    public ResponseEntity<?> tradeHistory(@RequestHeader("Authorization") String authHeader) {
+        String userId = getUserIdFromToken(authHeader);
+        if (userId.equals(ErrorCodes.TOKEN_EXTRACTION_ERROR.getCode())) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"error\": \"Unable To Process Request: " + ErrorCodes.TOKEN_EXTRACTION_ERROR.getCode() + "\"}");
+        }
+        if (userId.equals(ErrorCodes.PUBLIC_NOT_FOUND.getCode())) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"error\": \"Unable To Process Request: " + ErrorCodes.PUBLIC_NOT_FOUND.getCode() + "\"}");
+        }
+
+        List<TradeEntity> allUserTrades = tradingService.findAllUserTrades(userId);
+        return ResponseEntity.ok(allUserTrades);
     }
 
     private String getUserIdFromToken(String authHeader) {
