@@ -1,12 +1,12 @@
 version: "3.7"
 
 services:
-  gamba-api:
+  trading-api:
     image: ghcr.io/pokedex-gamba/trading-api:latest
     ports:
       - "8891:80"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db-inventory:3306/pokemon_trading
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db-trading:3306/pokemon_trading
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=password
       - INVENTORY_API_URL=http://host.docker.internal:8889
@@ -17,7 +17,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  db-inventory:
+  db-trading:
     image: mysql:8.0
     build: ./database
     ports:
