@@ -26,7 +26,7 @@ services:
       MYSQL_DATABASE: pokemon_trading
       MYSQL_ROOT_PASSWORD: password
     volumes:
-      - db_data:/var/lib/mysql-inventory
+      - db_data:/var/lib/mysql
 
 volumes:
   db_data:
