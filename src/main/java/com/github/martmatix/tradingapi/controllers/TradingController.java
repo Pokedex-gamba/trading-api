@@ -6,6 +6,11 @@ import com.github.martmatix.tradingapi.services.KeyLoaderService;
 import com.github.martmatix.tradingapi.services.TradingService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +30,12 @@ public class TradingController {
     private KeyLoaderService keyLoaderService;
     private TradingService tradingService;
 
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"ok\": \"Inventory Updated\"}"))
+            )
+    })
     @GetMapping(path = "/pokemon/trading/tradePokemon")
     public ResponseEntity<?> tradePokemon(@RequestParam("inventory") String inventoryId, @RequestParam("user") String newUserId, @RequestHeader("Authorization") String authHeader) {
         try {
@@ -59,6 +70,13 @@ public class TradingController {
         }
     }
 
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200",
+                            content = @Content(mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = TradeEntity.class))))
+            }
+    )
     @GetMapping(path = "/pokemon/trading/tradeHistory")
     public ResponseEntity<?> tradeHistory(@RequestHeader("Authorization") String authHeader) {
         String userId = getUserIdFromToken(authHeader);
