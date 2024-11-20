@@ -10,7 +10,6 @@ services:
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=password
       - INVENTORY_API_URL=http://host.docker.internal:8889
-      - SELF_API_HOST=http://host.docker.internal:8891
     depends_on:
       - db-trading
     volumes:
